@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Chatbot</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1e1e2f;
+            color: #f4f4f4;
+            display: flex;
+            height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            width: 100%;
+        }
+
+        .chat-area {
+            flex: 3;
+            background-color: #2e2e3e;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .chat-header {
+            font-size: 24px;
+            font-weight: bold;
+            color: #00bcd4;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #444;
+            padding-bottom: 10px;
+        }
+
+        #chatbox {
+            flex: 1;
+            overflow-y: auto;
+            border: 1px solid #444;
+            padding: 15px;
+            background-color: #1a1a2f;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .message {
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .user {
+            color: #4fc3f7;
+        }
+
+        .bot {
+            color: #81c784;
+        }
+
+        .input-area {
+            display: flex;
+            gap: 10px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #555;
+            background-color: #333;
+            color: #f4f4f4;
+        }
+
+        button {
+            background-color: #00bcd4;
+            border: none;
+            color: white;
+            padding: 10px 18px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .emoji-box {
+            flex: 1;
+            background-color: #1a1a1a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 80px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="chat-area">
+            <div class="chat-header">AI Chatbot</div>
+            <div id="chatbox"></div>
+            <div class="input-area">
+                <input type="text" id="userInput" placeholder="Type your message..." />
+                <button onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+        <div class="emoji-box" id="emoji">🤖</div>
+    </div>
+
+    <script>
+        function sendMessage() {
+            const input = document.getElementById('userInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            input.value = '';
+
+            const chatbox = document.getElementById('chatbox');
+            chatbox.innerHTML += `<div class="message user">You: ${message}</div>`;
+
+            fetch(`/get-response/?message=${encodeURIComponent(message)}`)
+                .then(response => response.json())
+                .then(data => {
+                    chatbox.innerHTML += `<div class="message bot">Bot: ${data.response}</div>`;
+                    document.getElementById('emoji').textContent = data.emoji;
+                    chatbox.scrollTop = chatbox.scrollHeight;
+                })
+                .catch(err => {
+                    chatbox.innerHTML += `<div class="message bot">Bot: Error fetching response.</div>`;
+                });
+        }
+
+        document.getElementById("userInput").addEventListener("keyup", function(event) {
+            if (event.key === "Enter") sendMessage();
+        });
+    </script>
+</body>
+</html>
